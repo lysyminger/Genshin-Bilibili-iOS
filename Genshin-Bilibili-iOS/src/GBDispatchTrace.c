@@ -53,6 +53,12 @@ static Obj dispatch_profile_request(Obj request) {
     if (!dispatch_host(host)) return request;
     int list = equal(path, "/query_region_list");
     if (!list && !equal(path, "/query_cur_region")) return request;
+#ifdef GB_PRESERVE_NATIVE_DIRECTORY
+    if (list) {
+        record("dispatch native iOS directory request retained; pairing applies only to current region");
+        return request;
+    }
+#endif
     /* The region list precedes login; the current-region request only follows verified Bili login. */
     if (!list && !combo_dispatch_route_active()) return request;
 #ifdef GB_ENABLE_CATALOG_PROFILE

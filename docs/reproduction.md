@@ -55,3 +55,11 @@ python Genshin-Bilibili-iOS/build_sdk_control.py inputs/original.ipa --output Ge
 ```
 
 同身份覆盖后，第一次直接选“官服登录”并测试进入世界。若成功，再正常重开游戏，选择“B站登录测试（实验）”，等SDK页面显示后取消或关闭，点结果提示中的“返回官服登录”，再测试官服。这一步不用提交B站账号凭证，且不能登录世界树；不要把SDK测试结束提示当作游戏认证失败。退出并重开一次可回到SDK尚未加载的对照条件。
+
+v0.21的两种官服测试已有用户成功反馈和SDK初始化日志。下一步v0.22恢复B服流程，但一级目录继续使用原生iOS配置，只在二级请求应用配套参数：
+
+```powershell
+python Genshin-Bilibili-iOS/build_native_directory.py inputs/original.ipa --proof private/AndroidSeed-pairing.json --output Genshin-Bilibili-iOS/output/bili_native_directory_v0.22.ipa
+```
+
+它仍是B服实验包，无法凭本机测试保证解决314302。同身份覆盖后正常完成B站登录，观察是否实际进入地图并可移动角色；停在下载界面、登录成功提示或加载画面都不算世界进入。保留设备连接以核对版本、实际一级请求和二级响应。

@@ -127,7 +127,7 @@ def bind_table_sizes(data):
     return fields[3], fields[7]
 
 
-def build_library(bridge=False, bili_component=False, combo_login=False, dispatch_trace=False, dispatch_route=False, dispatch_profile=False, region_directory=False, dispatch_stack=False, url_writer=False, catalog_profile=False):
+def build_library(bridge=False, bili_component=False, combo_login=False, dispatch_trace=False, dispatch_route=False, dispatch_profile=False, region_directory=False, dispatch_stack=False, url_writer=False, catalog_profile=False, native_directory=False):
     require(not combo_login or (bridge and bili_component), 'Combo login requires bridge and Bili component')
     require(not dispatch_route or (combo_login and dispatch_trace), 'Dispatch routing requires verified combo state and dispatch tracing')
     require(not dispatch_profile or (dispatch_route and combo_login and dispatch_trace), 'Dispatch profile requires dispatch routing and tracing')
@@ -135,6 +135,8 @@ def build_library(bridge=False, bili_component=False, combo_login=False, dispatc
     require(not dispatch_stack or dispatch_trace, 'Construction stack requires dispatch tracing')
     require(not url_writer or dispatch_stack, 'URL writer observation requires stack diagnostics')
     require(not catalog_profile or dispatch_profile, 'Catalog pairing requires dispatch profile adaptation')
+    require(not native_directory or (region_directory and catalog_profile),
+            'Native directory control requires directory adaptation and current-region catalog pairing')
     compiler = local_path('zig_relative', '.tools/zig13/ziglang/zig.exe')
     require(compiler.is_file(), 'Build compiler is missing: .tools/zig13/ziglang/zig.exe (ziglang 0.13.0)')
     output = ROOT / 'build/GBDiagnostic.dylib'
@@ -152,6 +154,7 @@ def build_library(bridge=False, bili_component=False, combo_login=False, dispatc
         *(['-DGB_ENABLE_DISPATCH_STACK=1'] if dispatch_stack else []),
         *(['-DGB_ENABLE_URL_WRITER=1'] if url_writer else []),
         *(['-DGB_ENABLE_CATALOG_PROFILE=1'] if catalog_profile else []),
+        *(['-DGB_PRESERVE_NATIVE_DIRECTORY=1'] if native_directory else []),
         *(['-DGB_ENABLE_REGION_DIRECTORY=1', '-DGB_BILI_REGION_ONLY=1'] if region_directory else []),
         '-L' + str(ROOT / 'src/stubs'), '-Wl,-install_name,@rpath/GBDiagnostic.framework/GBDiagnostic',
         '-Wl,-headerpad,0x1000',
@@ -165,7 +168,7 @@ def build_library(bridge=False, bili_component=False, combo_login=False, dispatc
     return output
 
 
-def package(source, target, library, bridge=False, sdk_candidate=None, combo_login=False, dispatch_route=False, dispatch_profile=False, region_directory=False, dispatch_stack=False, url_writer=False, catalog_profile=False):
+def package(source, target, library, bridge=False, sdk_candidate=None, combo_login=False, dispatch_route=False, dispatch_profile=False, region_directory=False, dispatch_stack=False, url_writer=False, catalog_profile=False, native_directory=False):
     require(source.resolve() != target.resolve(), 'Input and output must differ')
     require(not target.exists(), 'Refusing to overwrite an existing output')
     partial = target.with_suffix('.ipa.partial')
@@ -183,6 +186,7 @@ def package(source, target, library, bridge=False, sdk_candidate=None, combo_log
               'dispatch_stack_trace_enabled': dispatch_stack, 'dispatch_stack_trace_runtime_tested': False,
               'url_writer_trace_enabled': url_writer, 'url_writer_trace_runtime_tested': False,
               'catalog_pairing_enabled': catalog_profile, 'catalog_pairing_runtime_tested': False,
+              'native_directory_config_preserved': native_directory,
               'client_directory_experiment': region_directory, 'official_login_available': not region_directory,
               'server_auth_observed': False, 'world_entry_tested': False,
               'diagnostic_version': DIAGNOSTIC_VERSION,
