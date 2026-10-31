@@ -37,3 +37,13 @@
 只读扫描C源码构建时必须显式设置`-DGB_ANDROID_UID=<实际UID>`，并核对只读helper版本与宿主调用参数。默认UID=0会拒绝扫描，避免碰到其他应用。
 
 元数据解码材料自行放入`private/dispatch-decode/`，不随源码公开。Frida脚本是早期临时注入诊断，构建和测试不会自动运行它。
+
+## 314302 的官服对照
+
+未加桥接的原包覆盖后，用户反馈可进入官服世界且无需重下资源，当前同版资源索引与覆盖前一致。下一步对照使用只记录SDK调用的诊断库：
+
+```powershell
+python Genshin-Bilibili-iOS/build_official_control.py inputs/original.ipa --output Genshin-Bilibili-iOS/output/official_control_v0.20.ipa
+```
+
+该包没有B服登录选项，不替换渠道、调度参数或校验结果。仍需同一Apple账号/Team/最终Bundle ID覆盖安装，不能先卸载。若官服对照也报314302，只能说明问题范围缩小到了加载修改后的客户端等差异，尚不能单凭该现象认定具体触发机制。
