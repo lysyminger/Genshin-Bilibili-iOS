@@ -109,6 +109,11 @@ static void bridge_present(void *context) {
 #endif
     const char *title = "选择登录渠道", *official_title = "官服登录";
     long official_style = 0;
+#ifdef GB_COMBO_VERIFY_ONLY
+    title = "认证结构对照";
+    explanation = "本次先验证B服账号，再自动返回官服继续对照测试，无法进入世界树。不支持充值。";
+    bili_title = "B服认证取样后回官服";
+#endif
 #ifdef GB_BILI_REGION_ONLY
     title = "世界树目录实验";
     explanation = "本实验包只配置世界树。请选择B服登录；区服连接仍需验证。本版不支持充值。";

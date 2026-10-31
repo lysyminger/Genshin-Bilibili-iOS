@@ -63,3 +63,11 @@ python Genshin-Bilibili-iOS/build_native_directory.py inputs/original.ipa --proo
 ```
 
 它仍是B服实验包，无法凭本机测试保证解决314302。同身份覆盖后正常完成B站登录，观察是否实际进入地图并可移动角色；停在下载界面、登录成功提示或加载画面都不算世界进入。保留设备连接以核对版本、实际一级请求和二级响应。
+
+该实验随后仍有开门数据异常反馈。下一阶段只做真实认证结构对照：
+
+```powershell
+python Genshin-Bilibili-iOS/build_auth_shape_control.py inputs/original.ipa --output Genshin-Bilibili-iOS/output/auth_shape_control_v0.23.ipa
+```
+
+v0.23同身份覆盖后，选择“B服认证取样后回官服”，正常完成B站登录。取样结束会自动恢复原官服路径；若出现官服登录页，使用官服账号继续。此包不会进入世界树，目的是在同一进程采集真实B服认证字段结构和原生官服回调结构，避免把两种账号的凭证混交给游戏。日志只含固定字段的类型/非空状态和受限的渠道编号；真实字符串内容不记录。结果待实机验证。

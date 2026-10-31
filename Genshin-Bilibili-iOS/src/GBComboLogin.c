@@ -151,6 +151,9 @@ static void combo_result_on_main(void *context) {
     Obj token = combo_is(verified, "NSDictionary") ? combo_get(verified, "combo_token") : 0;
     Obj account_type = combo_is(verified, "NSDictionary") ? combo_get(verified, "account_type") : 0;
     if (combo_text(open_id) && combo_text(token) && combo_is(account_type, "NSNumber")) {
+#ifdef GB_ENABLE_LOGIN_SHAPE
+        record_login_shape("bili_verified", verified);
+#endif
         Obj data = send0(verified, "mutableCopy");
         Obj fatigue = combo_get(data, "fatigue_remind");
         send1(combo_config(), "setFatigueRemindConfig:", combo_is(fatigue, "NSDictionary") ? fatigue : (Obj)0);
@@ -180,6 +183,16 @@ static void combo_result_on_main(void *context) {
             ((Obj (*)(Obj, Sel, unsigned char))message)(get_class("NSNumber"), selector("numberWithBool:"), 0));
         if (!combo_get(data, "is_new_register")) combo_set(data, "is_new_register",
             ((Obj (*)(Obj, Sel, unsigned char))message)(get_class("NSNumber"), selector("numberWithBool:"), 0));
+#ifdef GB_ENABLE_LOGIN_SHAPE
+        record_login_shape("bili_normalized", data);
+#endif
+#ifdef GB_COMBO_VERIFY_ONLY
+        bridge_release(data);
+        bridge_release(response);
+        record("combo verify-only sample complete; Bili game identity not delivered; return to official login");
+        bili_finish(1);
+        return;
+#endif
         Obj game_response = combo_response_wire(0, data);
         Obj envelope = combo_dict(); combo_set(envelope, "ret", combo_num(0)); combo_set(envelope, "data", data);
         Obj login = send0(get_class("MiHoYoComboLogin"), "instance");

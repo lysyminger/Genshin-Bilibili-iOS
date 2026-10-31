@@ -39,6 +39,12 @@ static void bili_finish_on_main(void *result) {
     gb_cancel(&bridge, bridge.generation);
     unsigned long generation;
     if (gb_begin(&bridge, &generation) != GB_OK) return;
+#ifdef GB_COMBO_VERIFY_ONLY
+    record(kind == 1 ? "combo control returning to native official login after real verification" :
+                       "combo control returning to native official login after failed sample");
+    bridge_resume_official(0, 0);
+    return;
+#endif
     Obj app = send0(get_class("UIApplication"), "sharedApplication");
     Obj controller = send0(send0(app, "keyWindow"), "rootViewController");
     for (int i = 0; controller && i < 16; ++i) {

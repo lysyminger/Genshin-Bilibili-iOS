@@ -111,14 +111,79 @@ static void record_status(Obj response) {
         }
     }
 }
+#ifdef GB_ENABLE_LOGIN_SHAPE
+static int shape_is(Obj value, const char *name) {
+    return value && ((unsigned char (*)(Obj, Sel, Obj))message)(value,
+        selector("isKindOfClass:"), get_class(name));
+}
+static Obj shape_payload(Obj value) {
+    for (int depth = 0; depth < 3; ++depth) {
+        if (shape_is(value, "NSString")) {
+            Size length = ((Size (*)(Obj, Sel))message)(value, selector("length"));
+            Obj tool = get_class("MiHoYoSDKTool");
+            if (length > 65536 || !responds(tool, "stringToDictionary:")) return (Obj)0;
+            value = send1(tool, "stringToDictionary:", value);
+        }
+        if (!shape_is(value, "NSDictionary")) return (Obj)0;
+        if (send1(value, "objectForKey:", string("open_id")) ||
+            send1(value, "objectForKey:", string("combo_token"))) return value;
+        Obj data = send1(value, "objectForKey:", string("data"));
+        if (!data) return value;
+        value = data;
+    }
+    return (Obj)0;
+}
+static void record_login_shape(const char *stage, Obj response) {
+    Obj data = shape_payload(response);
+    if (!data) { record("login shape unavailable: unrecognized payload"); return; }
+    const char *keys[] = {"open_id", "combo_token", "device_id", "channel_token", "account_type",
+        "channel_id", "app_id", "guest", "is_new_register", "login_method", "open_token",
+        "name", "asterisk_name"};
+    for (int i = 0; i < 13; ++i) {
+        Obj value = send1(data, "objectForKey:", string(keys[i]));
+        const char *kind = !value ? "missing" : shape_is(value, "NSString") ? "string" :
+            shape_is(value, "NSNumber") ? "number" : shape_is(value, "NSDictionary") ? "dictionary" : "other";
+        char line[192];
+        Size pos = append(line, 0, sizeof(line), "login shape stage=");
+        pos = append(line, pos, sizeof(line), stage);
+        pos = append(line, pos, sizeof(line), " field=");
+        pos = append(line, pos, sizeof(line), keys[i]);
+        pos = append(line, pos, sizeof(line), " type=");
+        pos = append(line, pos, sizeof(line), kind);
+        if (equal(kind, "string")) {
+            Size length = ((Size (*)(Obj, Sel))message)(value, selector("length"));
+            pos = append(line, pos, sizeof(line), length ? " nonempty=1" : " nonempty=0");
+        } else if (equal(kind, "number") && i >= 4 && i <= 6) {
+            long long number_value = ((long long (*)(Obj, Sel))message)(value, selector("longLongValue"));
+            if (number_value >= 0 && number_value <= 64) {
+                pos = append(line, pos, sizeof(line), " value=");
+                number(line, pos, sizeof(line), (long)number_value);
+            }
+        }
+        record(line);
+    }
+}
+static void trace_login_shape(Obj function, Obj response) {
+    if (!shape_is(function, "NSString")) return;
+    const char *name = utf8(function);
+    if (equal(name, "login_login") || equal(name, "MiHoYoChannelModulelogin"))
+        record_login_shape("host_callback", response);
+}
+#endif
 static void trace_callback(Obj self, Sel cmd, Obj function, Obj response, int index) {
     record_name("callback indexed ", function);
     record_status(response);
+#ifdef GB_ENABLE_LOGIN_SHAPE
+    trace_login_shape(function, response);
+#endif
     original_callback(self, cmd, function, response, index);
 }
 static void trace_callback_short(Obj self, Sel cmd, Obj function, Obj response) {
     record_name("callback direct ", function);
     record_status(response);
+#ifdef GB_ENABLE_LOGIN_SHAPE
+    trace_login_shape(function, response);
+#endif
     original_callback_short(self, cmd, function, response);
 }
 static void trace_notify(Obj self, Sel cmd, Obj event, Obj params) {
