@@ -54,3 +54,20 @@ B服归一化数据与正常官服回调的open_id、combo_token、device_id、c
 保留官服原登录转交，追加独立B服入口。原生iOS一级请求不改，真实目录样本中的原始前缀逐字节保留，只追加86字节的QD记录；完整配置不动，也不强制改已保存区服。官服二级请求保持原值，只有认证后的B服二级请求应用配套参数；B服退出时恢复官服。新增核心、分块回调和渠道恢复测试，原有单QD目录实验默认行为保留。双入口与B服世界加载均待本版实机验证，不将其标记为314302修复。
 
 同时继续静态排查：已把保存的14处原生断开日志偏移映射到原始主程序函数。这些栈属于断开/返回首页路径，未定位实际触发错误的位置；主程序符号表和导出树未发现可直接使用的il2cpp元数据API。没有因此修改或关闭校验。
+
+### 2026-11-01 网络交叉检索：手机、GitHub与其他米哈游游戏
+
+结论：找到可核验的新排查线索，尚未找到可直接移植、已验证解决原神7.1 iOS B服314302的方案。同码不能独立确定成因。本轮仅查证公开原始反馈/源码并静态核对本机包，没有应用第三方补丁或生成新的修复包。
+
+| 方向 | 原始证据与适用范围 |
+| --- | --- |
+| 手机同码 | [HoYoLAB的安卓原始反馈](https://www.hoyolab.com/article/346961)明确为华为安卓、1.5更新后31-4302。评论有更换安装包来源并复用旧数据后恢复的个人反馈；不能作为当前iOS B服修复依据。 |
+| 安卓“改包名” | [Anyexyz源码](https://github.com/Anyexyz/xyz.anye.yuanshen/blob/main/原神切服器.js)检查已安装的各渠道APK，随后对资源目录renameTo并启动目标包；这不是只改APK包名就新增B站账号系统。项目已于2023年归档。 |
+| “加一个文件” | [星铁切服Rust源码](https://github.com/syokanatsu/hkrpg_change_server/blob/master/src/starrail/game_config.rs)同时处理PCGameSDK.dll、sdk_pkg_version及渠道配置。[另一份启动器说明](https://github.com/kongjintao/starrail-switch-between-the-official-and-b-server)要求预先具备B服登录组件。这些是Windows方案，未证明iOS补同名文件有效。 |
+| GitHub同码成因 | [genshin-unlock #25](https://github.com/z3lx/genshin-unlock/issues/25)维护者把该插件的31-4302归因于加载阶段的完整性检查；这是另一个PC插件案例，不证明本项目触发机制相同。[Starward #1133](https://github.com/Scighost/Starward/issues/1133)另有硬链接目录位置相关反馈，说明同码也存在文件布局案例。 |
+| 崩坏3旧跨服 | [Mornwind/BH3CN_SwitchServer](https://github.com/Mornwind/BH3CN_SwitchServer)通过客户端标识/调度改写跨官方平台，2020年已归档；README明确渠道服账号和登录器不同，B服部分尚无实际用途，不能当作成功iOS B服示例。 |
+| 崩坏3真实B服登录参考 | [近期PC项目的mihoyo_api.py](https://github.com/prover0721/Honkai3-Auto-Desktop/blob/main/games/honkai3/mihoyo_api.py)含真实combo验证、dispatch与二维码登录流程，使用bh3_cn、app_id1、channel14。可参考认证分层，不能直接复制参数到原神app_id4，也不是iOS桥接实现。 |
+
+本机核对：给定7.1安卓B服APK内存在runtime_config.json、channel_config_v1.5.json、biligame_package_info.json及sdk/package_config.json，没有config.ini成员。公开文章中笼统声称安卓APK只需修改assets/data/config.ini的做法不能直接套用这份包。本地PCGameSDK.dll为PE/AMD64，与上述旧星铁sdk_pkg_version的大小/MD5一致，支持“PC渠道组件可共用”的有限观察，不证明能装进iOS。
+
+从搜索线索继续静态定位：原iOS程序存在channel_config字符串、MiHoYoSDKConfigManager.requestConfig和MiHoYoComboConfig.requestComboConfig；后者读取app_id、channel_id、client_type组成请求。MHYConfig.setChannelID的本体只是写入数值并返回，没有在该方法内刷新网络配置。当前桥接会设置渠道14，但是否需要完整重新取得/初始化原生B渠道配置，仍须核对实际缓存和服务器响应；不能据此直接认定314302根因或盲目重置SDK。保留Bundle ID、资源和原校验逻辑。最新只读缓存检查时USB设备数为0，尚未完成运行配置验证。
