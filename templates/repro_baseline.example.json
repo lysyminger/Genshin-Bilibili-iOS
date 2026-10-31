@@ -1,0 +1,19 @@
+{
+  "game_version": "7.1.0",
+  "game_build": "1241",
+  "bridge_version": "0.19",
+  "source_bundle_id": "com.miHoYo.Yuanshen",
+  "installed_bundle_id": "REPLACE_WITH_YOUR_INSTALLED_BUNDLE_ID",
+  "signing_team_id": "REPLACE_WITH_YOUR_SIGNING_TEAM_ID",
+  "zig_version": "0.13.0",
+  "source_ipa_relative": "inputs/original.ipa",
+  "source_ipa_sha256": "d6015f4a45f0d9b9ea9815aafd8fabe5709f165019f9029c94acd852248def82",
+  "successful_ipa_relative": "Genshin-Bilibili-iOS/output/verified.ipa",
+  "successful_ipa_sha256": "5af1d6053c5edfb2676e295a2327ef8ef7d9bf78c94b900b95069e92b0e73843",
+  "sdk_donor_relative": "inputs/payload.zip",
+  "proof_relative": "private/AndroidSeed-pairing.json",
+  "iloader_relative": "downloads/iloader-windows-x64.exe",
+  "iloader_sha256": "0b9a129ae55106074c2648ec8c0eb17bc580bf7041126f4d94fbb488d7620ff7",
+  "zig_relative": ".tools/zig13/ziglang/zig.exe",
+  "apk_relative": "inputs/bilibili.apk"
+}

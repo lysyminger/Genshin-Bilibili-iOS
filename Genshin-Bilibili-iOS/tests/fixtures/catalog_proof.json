@@ -1,0 +1,158 @@
+{
+  "state": "compatible_metadata_candidate",
+  "seed_equal_between_independent_processes": true,
+  "resource_fields_identical": true,
+  "synthetic_test_fixture": true,
+  "runs": [
+    {
+      "pid": 1,
+      "seed_sha256": "9f9f5111f7b27a781f1f1ddde5ebc2dd2b796bfc7365c9c28b548e564176929f"
+    },
+    {
+      "pid": 2,
+      "seed_sha256": "9f9f5111f7b27a781f1f1ddde5ebc2dd2b796bfc7365c9c28b548e564176929f"
+    }
+  ],
+  "cases": [
+    {
+      "name": "A_original_android_query",
+      "http": 200,
+      "retcode": 0,
+      "region_info_present": true,
+      "cookies_or_authorization_sent": false,
+      "params": {
+        "version": "CNRELAndroid7.1.0",
+        "platform": "2",
+        "channel_id": "14",
+        "account_type": "14"
+      },
+      "resource_fingerprints": {
+        "8": {
+          "wire": 2,
+          "sha256": "03d72a5bc83d86608ccd433e81d4b08f0b65b45fc6d89b2a0fcef7810350da64"
+        },
+        "9": {
+          "wire": 2,
+          "sha256": "9e752143b7a56dadb4e7ec494e1e246f50a549a2f4b13abfd556b0d0cdf7060e"
+        },
+        "14": {
+          "wire": 2,
+          "sha256": "273e0870085b77440353dcd793b60dc56899f459ed32bd2f2284a62a601d2401"
+        },
+        "18": {
+          "wire": 2,
+          "sha256": "cec78267972e67532d55f1b73e10cea1e46248e5410f2da37b32740e2d2f9d9f"
+        },
+        "22": {
+          "wire": 2,
+          "sha256": "c9bca6de81b479f9a9d3005b37f94f6ba98df786cfed5a1c64ffaa50ff2c367d"
+        }
+      }
+    },
+    {
+      "name": "B_no_explicit_account_android",
+      "http": 200,
+      "retcode": 0,
+      "region_info_present": true,
+      "cookies_or_authorization_sent": false,
+      "params": {
+        "version": "CNRELAndroid7.1.0",
+        "platform": "2",
+        "channel_id": "14",
+        "account_type": "14"
+      },
+      "resource_fingerprints": {
+        "8": {
+          "wire": 2,
+          "sha256": "03d72a5bc83d86608ccd433e81d4b08f0b65b45fc6d89b2a0fcef7810350da64"
+        },
+        "9": {
+          "wire": 2,
+          "sha256": "9e752143b7a56dadb4e7ec494e1e246f50a549a2f4b13abfd556b0d0cdf7060e"
+        },
+        "14": {
+          "wire": 2,
+          "sha256": "273e0870085b77440353dcd793b60dc56899f459ed32bd2f2284a62a601d2401"
+        },
+        "18": {
+          "wire": 2,
+          "sha256": "cec78267972e67532d55f1b73e10cea1e46248e5410f2da37b32740e2d2f9d9f"
+        },
+        "22": {
+          "wire": 2,
+          "sha256": "c9bca6de81b479f9a9d3005b37f94f6ba98df786cfed5a1c64ffaa50ff2c367d"
+        }
+      }
+    },
+    {
+      "name": "C_no_explicit_account_ios_platform",
+      "http": 200,
+      "retcode": 0,
+      "region_info_present": true,
+      "cookies_or_authorization_sent": false,
+      "params": {
+        "version": "CNRELAndroid7.1.0",
+        "platform": "1",
+        "channel_id": "14",
+        "account_type": "14"
+      },
+      "resource_fingerprints": {
+        "8": {
+          "wire": 2,
+          "sha256": "03d72a5bc83d86608ccd433e81d4b08f0b65b45fc6d89b2a0fcef7810350da64"
+        },
+        "9": {
+          "wire": 2,
+          "sha256": "9e752143b7a56dadb4e7ec494e1e246f50a549a2f4b13abfd556b0d0cdf7060e"
+        },
+        "14": {
+          "wire": 2,
+          "sha256": "273e0870085b77440353dcd793b60dc56899f459ed32bd2f2284a62a601d2401"
+        },
+        "18": {
+          "wire": 2,
+          "sha256": "cec78267972e67532d55f1b73e10cea1e46248e5410f2da37b32740e2d2f9d9f"
+        },
+        "22": {
+          "wire": 2,
+          "sha256": "c9bca6de81b479f9a9d3005b37f94f6ba98df786cfed5a1c64ffaa50ff2c367d"
+        }
+      }
+    },
+    {
+      "name": "D_native_ios_official_reference",
+      "http": 200,
+      "retcode": 0,
+      "region_info_present": true,
+      "cookies_or_authorization_sent": false,
+      "params": {
+        "version": "CNRELiOS7.1.0",
+        "platform": "1",
+        "channel_id": "1",
+        "account_type": "1"
+      },
+      "resource_fingerprints": {
+        "8": {
+          "wire": 2,
+          "sha256": "03d72a5bc83d86608ccd433e81d4b08f0b65b45fc6d89b2a0fcef7810350da64"
+        },
+        "9": {
+          "wire": 2,
+          "sha256": "9e752143b7a56dadb4e7ec494e1e246f50a549a2f4b13abfd556b0d0cdf7060e"
+        },
+        "14": {
+          "wire": 2,
+          "sha256": "273e0870085b77440353dcd793b60dc56899f459ed32bd2f2284a62a601d2401"
+        },
+        "18": {
+          "wire": 2,
+          "sha256": "cec78267972e67532d55f1b73e10cea1e46248e5410f2da37b32740e2d2f9d9f"
+        },
+        "22": {
+          "wire": 2,
+          "sha256": "c9bca6de81b479f9a9d3005b37f94f6ba98df786cfed5a1c64ffaa50ff2c367d"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+requests>=2.31,<3
+cryptography>=42
+pymobiledevice3==11.49.0
+capstone==5.0.9
+unicorn==2.1.2

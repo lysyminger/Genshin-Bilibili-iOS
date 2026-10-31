@@ -1,0 +1,3 @@
+/* Synthetic directory frames using public records, not account data. */
+static const char *fixture_gf_wire = "ElQKB2NuX2dmMDESCeWkqeepuuWymxoKREVWX1BVQkxJQyIyaHR0cHM6Ly9jbmdmZGlzcGF0Y2gueXVhbnNoZW4uY29tL3F1ZXJ5X2N1cl9yZWdpb24=";
+static const char *fixture_qd_wire = "ElQKB2NuX3FkMDESCeS4lueVjOagkRoKREVWX1BVQkxJQyIyaHR0cHM6Ly9jbnFkZGlzcGF0Y2gueXVhbnNoZW4uY29tL3F1ZXJ5X2N1cl9yZWdpb24=";

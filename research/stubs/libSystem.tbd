@@ -1,0 +1,10 @@
+--- !tapi-tbd
+tbd-version: 4
+targets: [ arm64-ios ]
+install-name: '/usr/lib/libSystem.B.dylib'
+current-version: 1292.100.5
+compatibility-version: 1
+exports:
+  - targets: [ arm64-ios ]
+    symbols: [ _dlsym, _dlopen, _dispatch_async_f, _dispatch_get_main_queue ]
+...
