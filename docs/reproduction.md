@@ -47,3 +47,11 @@ python Genshin-Bilibili-iOS/build_official_control.py inputs/original.ipa --outp
 ```
 
 该包没有B服登录选项，不替换渠道、调度参数或校验结果。仍需同一Apple账号/Team/最终Bundle ID覆盖安装，不能先卸载。若官服对照也报314302，只能说明问题范围缩小到了加载修改后的客户端等差异，尚不能单凭该现象认定具体触发机制。
+
+用户反馈v0.20可进入官服，日志确认版本及原始渠道。下一阶段的SDK对照为：
+
+```powershell
+python Genshin-Bilibili-iOS/build_sdk_control.py inputs/original.ipa --output Genshin-Bilibili-iOS/output/sdk_control_v0.21.ipa
+```
+
+同身份覆盖后，第一次直接选“官服登录”并测试进入世界。若成功，再正常重开游戏，选择“B站登录测试（实验）”，等SDK页面显示后取消或关闭，点结果提示中的“返回官服登录”，再测试官服。这一步不用提交B站账号凭证，且不能登录世界树；不要把SDK测试结束提示当作游戏认证失败。退出并重开一次可回到SDK尚未加载的对照条件。
