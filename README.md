@@ -2,7 +2,9 @@
 
 在原神 iOS 客户端接入 B站真实登录，通过原游戏 combo 认证，再适配区服调度的版本与 seed 配套参数。当前 v0.19 针对 **原神7.1.0 / build1241**。
 
-用户已实机反馈进入世界并可操作角色；独立设备日志确认 combo 认证与配套改写生效。长期运行、其他账号/设备及未来版本尚未验证。这不是任意版本的一键切服工具。
+**尚未验证成功进入世界。** 用户后续澄清：iPhone仍在下载资源；iPad下载后，在进入世界的加载阶段出现“数据异常”314302（31-4302）。此前“已进入世界、可操作角色”的表述已撤回。
+
+独立设备日志确认B站登录、官方combo认证及配套改写生效；iPad实际二级调度缓存解码为retcode=0并包含RegionInfo。后续加载失败原因仍在定位，不能把认证/调度通过当作完整可玩。长期运行、其他设备及未来版本尚未验证。
 
 ## 目录
 
@@ -27,7 +29,7 @@ python -m pip install --target .tools/zig13 ziglang==0.13.0
 python tools/run_tests.py
 ```
 
-构建真实IPA需要自行提供匹配的原始IPA、安卓B服APK、SDK donor和经过验证的配套参数。它们不随源码发布。参见 [复现说明](docs/reproduction.md)。
+构建真实IPA需要自行提供匹配的原始IPA、安卓B服APK、SDK donor和经过验证的配套参数。它们不随源码发布。一键工具只重建当前实验包，尚不能解决314302或保证进入世界。参见 [复现说明](docs/reproduction.md)。
 
 ```powershell
 python Genshin-Bilibili-iOS/one_click.py --check-only

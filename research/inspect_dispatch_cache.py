@@ -119,7 +119,7 @@ async def read_entries():
                 url = urlsplit(request_key[start:])
                 assert start >= 0 and url.hostname == 'cnqddispatch.yuanshen.com' and url.path == '/query_cur_region'
                 if on_fs:
-                    name = body.decode('ascii')
+                    name = body if isinstance(body, str) else body.decode('ascii')
                     assert name and all(c in '0123456789abcdefABCDEF-' for c in name)
                     body = await afc.get_file_contents(APP_CACHE + '/fsCachedData/' + name)
                 result.append((entry, dict(parse_qsl(url.query)), body))
