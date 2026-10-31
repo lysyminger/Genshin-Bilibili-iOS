@@ -46,6 +46,10 @@ static Obj msg(Obj object, Sel command, ...) {
     else if(!strcmp(name,"data")){assert(v==&mutable_class);result=buffer_allocation_failed?0:data(0,0);}
     else if(!strcmp(name,"alloc")){assert(v==&data_class);result=value(DATA);}
     else if(!strcmp(name,"length")){result=(Obj)(__UINTPTR_TYPE__)(v->kind==TEXT?strlen(v->text):v->size);}
+    else if(!strcmp(name,"setLength:")){
+        Size length=va_arg(args,Size);assert(v->kind==DATA && length<=sizeof(v->bytes));
+        if(length>v->size)memset(v->bytes+v->size,0,length-v->size);v->size=length;
+    }
     else if(!strcmp(name,"appendData:")){
         struct Value *part=va_arg(args,Obj);assert(v->kind==DATA && part->kind==DATA && v->size+part->size<=sizeof(v->bytes));
         memcpy(v->bytes+v->size,part->bytes,part->size);v->size+=part->size;
@@ -55,9 +59,18 @@ static Obj msg(Obj object, Sel command, ...) {
     } else if(!strcmp(name,"autorelease"))result=v;
     else if(!strcmp(name,"mutableCopy")){assert(v->kind==DATA);result=data(v->bytes,v->size);}
     else if(!strcmp(name,"mutableBytes")){assert(v->kind==DATA);result=v->bytes;}
+    else if(!strcmp(name,"bytes")){assert(v->kind==DATA);result=v->bytes;}
     else if(!strcmp(name,"base64EncodedStringWithOptions:")){
+#ifdef GB_DUAL_LOGIN
+        assert(va_arg(args,Size)==0 && v->size==decoded_size+2+sizeof(region_qd_record));
+        assert(!memcmp(v->bytes,decoded_gf,decoded_size));
+        assert(v->bytes[decoded_size]==0x12 && v->bytes[decoded_size+1]==sizeof(region_qd_record));
+        assert(!memcmp(v->bytes+decoded_size+2,region_qd_record,sizeof(region_qd_record)));
+        struct Value *text=value(TEXT);text->text=fixture_dual_wire;result=text;
+#else
         assert(va_arg(args,Size)==0 && v->size==decoded_size && !memcmp(v->bytes,decoded_qd,decoded_size));
         struct Value *text=value(TEXT);text->text=fixture_qd_wire;result=text;
+#endif
     } else if(!strcmp(name,"dataUsingEncoding:")){
         assert(v->kind==TEXT && va_arg(args,Size)==4);struct Value *wire=data(v->text,(Size)strlen(v->text));
         if(encoded_size_mismatch)wire->bytes[wire->size++]='\n';result=wire;

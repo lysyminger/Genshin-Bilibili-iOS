@@ -109,6 +109,10 @@ static void bridge_present(void *context) {
 #endif
     const char *title = "选择登录渠道", *official_title = "官服登录";
     long official_style = 0;
+#ifdef GB_DUAL_LOGIN
+    title = "官服 / B服";
+    explanation = "官服登录后请选择天空岛，B服登录后请选择世界树。B服开门异常仍在排查，本版不支持B服充值。";
+#endif
 #ifdef GB_COMBO_VERIFY_ONLY
     title = "认证结构对照";
     explanation = "本次先验证B服账号，再自动返回官服继续对照测试，无法进入世界树。不支持充值。";

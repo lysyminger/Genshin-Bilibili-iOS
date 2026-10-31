@@ -127,7 +127,7 @@ def bind_table_sizes(data):
     return fields[3], fields[7]
 
 
-def build_library(bridge=False, bili_component=False, combo_login=False, dispatch_trace=False, dispatch_route=False, dispatch_profile=False, region_directory=False, dispatch_stack=False, url_writer=False, catalog_profile=False, native_directory=False, login_shape=False, verify_only=False):
+def build_library(bridge=False, bili_component=False, combo_login=False, dispatch_trace=False, dispatch_route=False, dispatch_profile=False, region_directory=False, dispatch_stack=False, url_writer=False, catalog_profile=False, native_directory=False, login_shape=False, verify_only=False, dual_login=False):
     require(not combo_login or (bridge and bili_component), 'Combo login requires bridge and Bili component')
     require(not dispatch_route or (combo_login and dispatch_trace), 'Dispatch routing requires verified combo state and dispatch tracing')
     require(not dispatch_profile or (dispatch_route and combo_login and dispatch_trace), 'Dispatch profile requires dispatch routing and tracing')
@@ -137,8 +137,10 @@ def build_library(bridge=False, bili_component=False, combo_login=False, dispatc
     require(not catalog_profile or dispatch_profile, 'Catalog pairing requires dispatch profile adaptation')
     require(not native_directory or (region_directory and catalog_profile),
             'Native directory control requires directory adaptation and current-region catalog pairing')
+    require(not dual_login or (native_directory and region_directory and catalog_profile),
+            'Dual login requires native iOS directory configuration and authenticated B pairing')
     require(not verify_only or (combo_login and login_shape and not any([
-        dispatch_route, dispatch_profile, region_directory, catalog_profile, native_directory])),
+        dispatch_route, dispatch_profile, region_directory, catalog_profile, native_directory, dual_login])),
         'Verify-only control requires login shape tracing and native official dispatch')
     compiler = local_path('zig_relative', '.tools/zig13/ziglang/zig.exe')
     require(compiler.is_file(), 'Build compiler is missing: .tools/zig13/ziglang/zig.exe (ziglang 0.13.0)')
@@ -160,7 +162,9 @@ def build_library(bridge=False, bili_component=False, combo_login=False, dispatc
         *(['-DGB_PRESERVE_NATIVE_DIRECTORY=1'] if native_directory else []),
         *(['-DGB_ENABLE_LOGIN_SHAPE=1'] if login_shape else []),
         *(['-DGB_COMBO_VERIFY_ONLY=1'] if verify_only else []),
-        *(['-DGB_ENABLE_REGION_DIRECTORY=1', '-DGB_BILI_REGION_ONLY=1'] if region_directory else []),
+        *(['-DGB_ENABLE_REGION_DIRECTORY=1'] if region_directory else []),
+        *(['-DGB_BILI_REGION_ONLY=1'] if region_directory and not dual_login else []),
+        *(['-DGB_DUAL_LOGIN=1'] if dual_login else []),
         '-L' + str(ROOT / 'src/stubs'), '-Wl,-install_name,@rpath/GBDiagnostic.framework/GBDiagnostic',
         '-Wl,-headerpad,0x1000',
         '-o', str(output), str(ROOT / 'src/GBDiagnostic.c'),
@@ -173,7 +177,7 @@ def build_library(bridge=False, bili_component=False, combo_login=False, dispatc
     return output
 
 
-def package(source, target, library, bridge=False, sdk_candidate=None, combo_login=False, dispatch_route=False, dispatch_profile=False, region_directory=False, dispatch_stack=False, url_writer=False, catalog_profile=False, native_directory=False, login_shape=False, verify_only=False):
+def package(source, target, library, bridge=False, sdk_candidate=None, combo_login=False, dispatch_route=False, dispatch_profile=False, region_directory=False, dispatch_stack=False, url_writer=False, catalog_profile=False, native_directory=False, login_shape=False, verify_only=False, dual_login=False):
     require(source.resolve() != target.resolve(), 'Input and output must differ')
     require(not target.exists(), 'Refusing to overwrite an existing output')
     partial = target.with_suffix('.ipa.partial')
@@ -193,7 +197,8 @@ def package(source, target, library, bridge=False, sdk_candidate=None, combo_log
               'catalog_pairing_enabled': catalog_profile, 'catalog_pairing_runtime_tested': False,
               'native_directory_config_preserved': native_directory,
               'login_shape_trace_enabled': login_shape, 'combo_verify_only_control': verify_only,
-              'client_directory_experiment': region_directory, 'official_login_available': not region_directory,
+              'dual_login_enabled': dual_login,
+              'client_directory_experiment': region_directory, 'official_login_available': not region_directory or dual_login,
               'server_auth_observed': False, 'world_entry_tested': False,
               'diagnostic_version': DIAGNOSTIC_VERSION,
               'library_header_padding_bytes': require_signing_room(library.read_bytes()),
@@ -222,6 +227,8 @@ def package(source, target, library, bridge=False, sdk_candidate=None, combo_log
             info['CFBundleDisplayName'] = '原神桥接实验' if bridge else '原神适配诊断'
             if region_directory:
                 info['CFBundleDisplayName'] = '原神世界树实验'
+            if dual_login:
+                info['CFBundleDisplayName'] = '原神双渠道实验'
             info['UIFileSharingEnabled'] = True
             info['LSSupportsOpeningDocumentsInPlace'] = True
             info['GBDiagnosticBuild'] = DIAGNOSTIC_VERSION + ('-bridge' if bridge else '-passive')

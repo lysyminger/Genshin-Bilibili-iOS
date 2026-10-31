@@ -19,6 +19,13 @@ int main(void) {
     setup("https://dispatchcnglobal.yuanshen.com/query_region_list?version=CNRELiOS7.1.0&platform=1&channel_id=1");
     assert(dispatch_profile_request(&request) == &request && copies == 0);
 
+    reset(); route_active = 0;
+    strcpy(host_buffer, "cngfdispatch.yuanshen.com"); strcpy(path_buffer, "/query_cur_region");
+    setup("https://cngfdispatch.yuanshen.com/query_cur_region?version=CNRELiOS7.1.0&platform=1&channel_id=1&account_type=1&dispatchSeed=0000000000000000&aid=PRIVATE");
+    assert(dispatch_profile_request(&request) == &request && copies == 0);
+    assert(dispatch_unity_send(0, 0, 0, &request, 0) == &request && copies == 0);
+    assert(!strstr(captured, "verified version/seed pairing applied") && !strstr(captured, "PRIVATE"));
+
     reset(); route_active = 1;
     strcpy(host_buffer, "cnqddispatch.yuanshen.com"); strcpy(path_buffer, "/query_cur_region");
     setup("https://cnqddispatch.yuanshen.com/query_cur_region?version=CNRELiOS7.1.0&platform=1&channel_id=14&account_type=14&dispatchSeed=0000000000000000&extra=A%2Bb&aid=PRIVATE");

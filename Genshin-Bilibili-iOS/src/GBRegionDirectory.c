@@ -1,4 +1,4 @@
-/* B-only client-directory experiment; server authentication/signatures remain original. */
+/* Client-directory experiments; server authentication/signatures remain original. */
 #include "GBRegionDirectoryCore.c"
 static Obj (*region_get_association)(Obj, const void *);
 static void (*region_set_association)(Obj, const void *, Obj, Size);
@@ -22,19 +22,35 @@ static Obj region_directory_wire(Obj wire) {
     decoded = send0(decoded, "autorelease");
     Obj edited = send0(send0(decoded, "mutableCopy"), "autorelease");
     Size size = ((Size (*)(Obj, Sel))message)(edited, selector("length"));
+#ifdef GB_DUAL_LOGIN
+    if (size > 65536) return wire;
+    const unsigned char *original = ((const unsigned char *(*)(Obj, Sel))message)(decoded, selector("bytes"));
+    Size capacity = size + 2 + sizeof(region_qd_record);
+    ((void (*)(Obj, Sel, Size))message)(edited, selector("setLength:"), capacity);
+    unsigned char *bytes = ((unsigned char *(*)(Obj, Sel))message)(edited, selector("mutableBytes"));
+    if (!region_append_qd_record(original, size, bytes, capacity)) {
+#else
     unsigned char *bytes = ((unsigned char *(*)(Obj, Sel))message)(edited, selector("mutableBytes"));
     if (!bytes || !region_replace_record(bytes, size)) {
+#endif
         record("directory profile not recognized; original directory retained");
         return wire;
     }
     Obj encoded = ((Obj (*)(Obj, Sel, Size))message)(edited, selector("base64EncodedStringWithOptions:"), 0);
     Obj result = ((Obj (*)(Obj, Sel, Size))message)(encoded, selector("dataUsingEncoding:"), 4);
     Size old_size = ((Size (*)(Obj, Sel))message)(wire, selector("length"));
+#ifdef GB_DUAL_LOGIN
+    old_size = ((capacity + 2) / 3) * 4;
+#endif
     if (!result || ((Size (*)(Obj, Sel))message)(result, selector("length")) != old_size) {
         record("directory encoding size changed; original directory retained");
         return wire;
     }
+#ifdef GB_DUAL_LOGIN
+    record("directory official entry retained and World Tree appended; native iOS configuration preserved");
+#else
     record("directory client profile set to official World Tree entry; iOS configuration preserved");
+#endif
     return result;
 }
 static void region_data(Obj self, Sel cmd, Obj connection, Obj data) {
@@ -112,6 +128,10 @@ static void region_directory_install(void) {
     region_next_data = (void *)install("UnityWWWConnectionDelegate", selectors[0], types[0], (Imp)region_data);
     region_next_finish = (void *)install("UnityWWWConnectionDelegate", selectors[1], types[1], (Imp)region_finish);
     region_next_fail = (void *)install("UnityWWWConnectionDelegate", selectors[2], types[2], (Imp)region_fail);
+#ifdef GB_DUAL_LOGIN
+    record("dual directory installed; saved server selection left unchanged");
+#else
     region_select_saved();
+#endif
     record("World Tree client-directory experiment installed; native iOS request generation unchanged");
 }

@@ -17,7 +17,7 @@ static int region_varint(const unsigned char *data, unsigned long size, unsigned
     }
     return 0;
 }
-static int region_replace_record(unsigned char *data, unsigned long size) {
+static int region_find_gf_record(const unsigned char *data, unsigned long size, unsigned long *found) {
     unsigned long pos = 0, record_pos = 0;
     int regions = 0, recognized = 0;
     while (pos < size) {
@@ -43,6 +43,25 @@ static int region_replace_record(unsigned char *data, unsigned long size) {
         } else return 0;
     }
     if (regions != 1 || !recognized) return 0;
+    *found = record_pos;
+    return 1;
+}
+static int region_replace_record(unsigned char *data, unsigned long size) {
+    unsigned long record_pos;
+    if (!region_find_gf_record(data, size, &record_pos)) return 0;
     for (unsigned long i = 0; i < sizeof(region_qd_record); ++i) data[record_pos + i] = region_qd_record[i];
     return 1;
+}
+static unsigned long region_append_qd_record(const unsigned char *data, unsigned long size,
+                                            unsigned char *out, unsigned long capacity) {
+    _Static_assert(sizeof(region_qd_record) < 128, "Directory record requires a longer varint");
+    const unsigned long extra = 2 + sizeof(region_qd_record);
+    unsigned long record_pos;
+    if (!data || !out || capacity < extra || size > capacity - extra ||
+        !region_find_gf_record(data, size, &record_pos)) return 0;
+    for (unsigned long i = 0; i < size; ++i) out[i] = data[i];
+    out[size] = 0x12;
+    out[size + 1] = sizeof(region_qd_record);
+    for (unsigned long i = 0; i < sizeof(region_qd_record); ++i) out[size + 2 + i] = region_qd_record[i];
+    return size + extra;
 }
